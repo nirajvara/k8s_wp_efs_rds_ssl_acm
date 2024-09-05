@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wordpress-efs-php-config
+    #  namespace: wordpress
+data:
+  uploads.ini: |-
+    file_uploads = On
+    upload_max_filesize = 5048M
+    post_max_size = 5048M
+    max_execution_time = 600

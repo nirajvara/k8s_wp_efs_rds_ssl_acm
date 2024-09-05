@@ -1,0 +1,73 @@
+apiVersion: v1
+kind: Service
+metadata:
+  #  annotations:
+    # Note that the backend talks over HTTP.
+    #  service.beta.kubernetes.io/aws-load-balancer-backend-protocol: http
+    ## TODO: Fill in with the ARN of your certificate.
+    ##service.beta.kubernetes.io/aws-load-balancer-ssl-cert: arn:aws:acm:us-east-1:659328422194:certificate/44ef16c5-9e9f-4e74-9e8a-c56da28ee9f9
+    # Only run SSL on the port named "https" below.
+    ##service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
+  labels:
+    name: wordpress-efs
+  name: wordpress-efs
+spec:
+  ports:
+  - name: http  
+    port: 80
+    targetPort: 80  
+  - name: https  
+    port: 443
+    targetPort: 80
+  selector:
+    name: wordpress-efs
+      #  type: LoadBalancer
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: wordpress-efs
+  name: wordpress-efs
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      name: wordpress-efs
+  template:
+    metadata:
+      labels:
+        name: wordpress-efs
+    spec:
+      containers:
+      - name: wordpress
+        image: wordpress:6.0.0-apache
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 80
+          name: wordpress-efs
+        volumeMounts:
+        - mountPath: /var/www/html
+          name: wordpress-efs-volume
+        - mountPath: /usr/local/etc/php/conf.d/uploads.ini
+          name: php-config
+          subPath: uploads.ini
+        env:
+        - name: WORDPRESS_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-password
+              key: password 
+        - name: WORDPRESS_DB_USER
+          value: "wordpress"
+        - name: WORDPRESS_DB_NAME
+          value: "wordpress"
+        - name: WORDPRESS_DB_HOST
+          value: "database-1.chuk0g6kmvx4.us-east-1.rds.amazonaws.com"
+      volumes:
+      - name: "wordpress-efs-volume"
+        persistentVolumeClaim:
+          claimName: wordpress-efs-pvc
+      - name: php-config
+        configMap:
+          name: "wordpress-efs-php-config"
