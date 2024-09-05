@@ -1,4 +1,4 @@
-# k8s_wp_efs_ssl_acm
+# k8s_wp_efs_rds_ssl_acm
 kubernetes WP deployment with efs, ssl acm 
 
 #### setup in k8s 
