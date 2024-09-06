@@ -1,6 +1,9 @@
 # k8s_wp_efs_rds_ssl_acm
 kubernetes WP deployment with efs, ssl acm 
 
+reference 
+https://aws.amazon.com/blogs/containers/serve-distinct-domains-with-tls-powered-by-acm-on-amazon-eks/
+
 #### setup in k8s 
 
 ### wiht new vpc
